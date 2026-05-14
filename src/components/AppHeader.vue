@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Menu } from 'lucide-vue-next'
+import { Menu, Pause, Play } from 'lucide-vue-next'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { useSidebar } from '@/composables/useSidebar'
+import { useControlsStore } from '@/stores/controls'
 import ThemeToggle from './ThemeToggle.vue'
 
 const { status } = useWebSocket()
 const { open } = useSidebar()
+const controlsStore = useControlsStore()
 
 const statusClass = computed(() => {
   switch (status.value) {
@@ -48,8 +50,19 @@ const statusClass = computed(() => {
           :class="statusClass"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-          {{ status }}
+          {{ controlsStore.isPaused ? 'paused' : status }}
         </span>
+
+        <button
+          @click="controlsStore.togglePause"
+          :aria-label="controlsStore.isPaused ? 'Resume streaming' : 'Pause streaming'"
+          :title="controlsStore.isPaused ? 'Resume' : 'Pause'"
+          class="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <Play v-if="controlsStore.isPaused" :size="18" />
+          <Pause v-else :size="18" />
+        </button>
+
         <ThemeToggle />
       </div>
     </div>

@@ -3,15 +3,19 @@ import { useMetricsStore } from './metrics'
 import { useLogsStore } from './logs'
 import { useAlertsStore } from './alerts'
 import { useStatusStore } from './status'
+import { useControlsStore } from './controls'
 
 export function setupStores() {
   const metricsStore = useMetricsStore()
   const logsStore = useLogsStore()
   const alertsStore = useAlertsStore()
   const statusStore = useStatusStore()
+  const controlsStore = useControlsStore()
 
-  // Subscribe once. The WebSocket service will call this for every event.
   wsService.onEvent((event) => {
+    // Drop incoming events while paused
+    if (controlsStore.isPaused) return
+
     switch (event.type) {
       case 'metric':
         metricsStore.addMetric(event)
