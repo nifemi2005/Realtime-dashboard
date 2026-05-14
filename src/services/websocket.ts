@@ -9,7 +9,7 @@ export type ConnectionStatus =
   | 'error'
 
 type EventHandler = (event: StreamEvent) => void
-type StatusHandler = (status: ConnectionStatus) => void
+type StatusHandler = (status: ConnectionStatus, attempts: number) => void
 
 class WebSocketService {
   private socket: WebSocket | null = null
@@ -94,7 +94,7 @@ class WebSocketService {
   // Subscribe to connection status changes.
   onStatusChange(handler: StatusHandler): () => void {
     this.statusHandlers.add(handler)
-    handler(this.status) // give the new subscriber the current status immediately
+    handler(this.status, this.reconnectAttempts)
     return () => this.statusHandlers.delete(handler)
   }
 
@@ -102,7 +102,7 @@ class WebSocketService {
 
   private setStatus(status: ConnectionStatus) {
     this.status = status
-    this.statusHandlers.forEach((handler) => handler(status))
+    this.statusHandlers.forEach((handler) => handler(status, this.reconnectAttempts))
   }
 
   private scheduleReconnect() {

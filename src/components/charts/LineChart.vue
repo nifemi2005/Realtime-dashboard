@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import VChart from 'vue-echarts'
 import { useTheme } from '@/composables/useTheme'
+import { Loader2 } from 'lucide-vue-next'
 
 interface Series {
   name: string
@@ -79,8 +80,17 @@ const option = computed(() => ({
     data: s.data,
   })),
 }))
+
+const hasData = computed(() => props.series.some((s) => s.data && s.data.length > 0))
 </script>
 
 <template>
-  <v-chart :option="option" autoresize class="w-full h-full" />
+  <div
+    v-if="!hasData"
+    class="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-600"
+  >
+    <Loader2 :size="20" class="animate-spin opacity-60" />
+    <span class="text-xs">Waiting for data…</span>
+  </div>
+  <v-chart v-else :option="option" autoresize class="w-full h-full" />
 </template>

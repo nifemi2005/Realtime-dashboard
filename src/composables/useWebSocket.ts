@@ -4,25 +4,24 @@ import type { StreamEvent } from '@/types/events'
 
 export function useWebSocket() {
   const status = ref<ConnectionStatus>('disconnected')
+  const reconnectAttempts = ref(0)
   const lastEvent = ref<StreamEvent | null>(null)
   const eventCount = ref(0)
 
-  // Subscribe to status changes
-  const unsubscribeStatus = wsService.onStatusChange((s) => {
+  const unsubscribeStatus = wsService.onStatusChange((s, attempts) => {
     status.value = s
+    reconnectAttempts.value = attempts
   })
 
-  // Subscribe to events
   const unsubscribeEvent = wsService.onEvent((event) => {
     lastEvent.value = event
     eventCount.value++
   })
 
-  // Clean up subscriptions when the component using this composable unmounts
   onUnmounted(() => {
     unsubscribeEvent()
     unsubscribeStatus()
   })
 
-  return { status, lastEvent, eventCount }
+  return { status, reconnectAttempts, lastEvent, eventCount }
 }
