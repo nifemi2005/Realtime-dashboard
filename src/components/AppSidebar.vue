@@ -1,24 +1,10 @@
 <script setup lang="ts">
-import {
-  Eye,
-  LayoutDashboard,
-  Server,
-  ScrollText,
-  AlertTriangle,
-  Settings,
-  X,
-} from 'lucide-vue-next'
+import { Eye, LayoutDashboard, X } from 'lucide-vue-next'
 import { useSidebar } from '@/composables/useSidebar'
 
 const { isMobileOpen, close } = useSidebar()
 
-const navItems = [
-  { icon: LayoutDashboard, label: 'Overview', active: true },
-  { icon: Server, label: 'Services', active: false },
-  { icon: ScrollText, label: 'Logs', active: false },
-  { icon: AlertTriangle, label: 'Alerts', active: false },
-  { icon: Settings, label: 'Settings', active: false },
-]
+const navItems = [{ icon: LayoutDashboard, label: 'Overview', active: true }]
 </script>
 
 <template>
