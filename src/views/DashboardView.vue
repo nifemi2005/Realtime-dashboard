@@ -17,6 +17,7 @@ import CpuMemoryChart from '@/components/charts/CpuMemoryChart.vue'
 import RequestsBarChart from '@/components/charts/RequestsBarChart.vue'
 import LatencyChart from '@/components/charts/LatencyChart.vue'
 import ActivityFeed from '@/components/ActivityFeed.vue'
+import ServiceFilter from '@/components/ServiceFilter.vue'
 
 const { requestsPerSec, errorRate, requestsHistory, errorRateHistory } = useGlobalMetrics()
 const alertsStore = useAlertsStore()
@@ -65,10 +66,9 @@ const statusStore = useStatusStore()
     </div>
 
     <!-- Time range selector -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-        Live metrics
-      </h2>
+    <!-- Controls row -->
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <ServiceFilter />
       <TimeRangeSelector />
     </div>
 

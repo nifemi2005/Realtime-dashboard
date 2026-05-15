@@ -10,6 +10,7 @@ export const useControlsStore = defineStore('controls', () => {
   const isPaused = ref(false)
   const timeRange = ref<TimeRange>('live')
   const activeSeverities = ref<Set<Severity>>(new Set(ALL_SEVERITIES))
+  const excludedServices = ref<Set<string>>(new Set())
 
   function togglePause() {
     isPaused.value = !isPaused.value
@@ -30,13 +31,27 @@ export const useControlsStore = defineStore('controls', () => {
     return activeSeverities.value.has(sev)
   }
 
+  function toggleServiceExclusion(service: string) {
+    const next = new Set(excludedServices.value)
+    if (next.has(service)) next.delete(service)
+    else next.add(service)
+    excludedServices.value = next
+  }
+
+  function isServiceExcluded(service: string): boolean {
+    return excludedServices.value.has(service)
+  }
+
   return {
     isPaused,
     timeRange,
     activeSeverities,
+    excludedServices,
     togglePause,
     setTimeRange,
     toggleSeverity,
     isSeverityActive,
+    toggleServiceExclusion,
+    isServiceExcluded,
   }
 })

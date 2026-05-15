@@ -9,7 +9,6 @@ interface Series {
   data: [number, number][]
   color: string
 }
-
 const props = withDefaults(
   defineProps<{
     series: Series[]
@@ -18,8 +17,9 @@ const props = withDefaults(
     yMax?: number
     area?: boolean
     stack?: boolean
+    showLegend?: boolean
   }>(),
-  { area: false, stack: false },
+  { area: false, stack: false, showLegend: false },
 )
 
 const { isDark } = useTheme()
@@ -32,15 +32,10 @@ const tooltipBg = computed(() => (isDark.value ? '#0f172a' : '#ffffff'))
 const option = computed(() => ({
   animation: true,
   animationDuration: 300,
-  grid: { top: 20, right: 24, bottom: 36, left: 50 },
-  tooltip: {
-    trigger: 'axis',
-    backgroundColor: tooltipBg.value,
-    borderColor: axisColor.value,
-    borderWidth: 1,
-    textStyle: { color: isDark.value ? '#f1f5f9' : '#0f172a', fontSize: 12 },
-  },
+  grid: { top: 20, right: 24, bottom: props.showLegend ? 36 : 16, left: 50 },
+  // ... (other props unchanged) ...
   legend: {
+    show: props.showLegend,
     data: props.series.map((s) => s.name),
     bottom: 0,
     icon: 'circle',

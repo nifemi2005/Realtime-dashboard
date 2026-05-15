@@ -31,6 +31,7 @@ export function useGlobalMetrics() {
   const requestsPerSec = computed(() => {
     let total = 0
     for (const service of metricsStore.services) {
+      if (controlsStore.excludedServices.has(service)) continue
       const latest = metricsStore.getLatest(service)
       if (latest) total += latest.requestsPerSec
     }
@@ -41,6 +42,7 @@ export function useGlobalMetrics() {
     let sum = 0
     let count = 0
     for (const service of metricsStore.services) {
+      if (controlsStore.excludedServices.has(service)) continue
       const latest = metricsStore.getLatest(service)
       if (latest) {
         sum += latest.errorRate
@@ -52,7 +54,9 @@ export function useGlobalMetrics() {
 
   // Time-series builder, now respects controlsStore.timeRange
   function timeSeries(field: Field, aggregate: 'avg' | 'sum'): [number, number][] {
-    const arrays = Object.values(metricsStore.byService)
+    const arrays = Object.entries(metricsStore.byService)
+      .filter(([service]) => !controlsStore.excludedServices.has(service))
+      .map(([, arr]) => arr)
     if (arrays.length === 0) return []
 
     const minLength = Math.min(...arrays.map((a) => a.length))
@@ -94,10 +98,12 @@ export function useGlobalMetrics() {
 
   // Bar chart data
   const requestsByService = computed(() =>
-    metricsStore.services.map((service) => ({
-      service,
-      value: metricsStore.getLatest(service)?.requestsPerSec ?? 0,
-    })),
+    metricsStore.services
+      .filter((s) => !controlsStore.excludedServices.has(s))
+      .map((service) => ({
+        service,
+        value: metricsStore.getLatest(service)?.requestsPerSec ?? 0,
+      })),
   )
 
   const cpuOverTimeT = refThrottled(cpuOverTime, 250)
