@@ -10,8 +10,11 @@ import AppHeader from '@/components/AppHeader.vue'
 import ConnectionBanner from '@/components/ConnectionBanner.vue'
 import Toasts from '@/components/Toasts.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import { useWebSocket } from '@/composables/useWebSocket'
+import { startDataGenerator, stopDataGenerator } from '@/services/dataGenerator'
 
 const controlsStore = useControlsStore()
+const { status } = useWebSocket()
 const { toggle: toggleTheme } = useTheme()
 
 // Critical alerts → toast notifications
@@ -23,8 +26,23 @@ useKeyboardShortcuts([
   { code: 'KeyT', handler: () => toggleTheme() },
 ])
 
-onMounted(() => wsService.connect())
-onUnmounted(() => wsService.disconnect())
+onMounted(() => {
+  wsService.connect()
+
+  // Give the WebSocket 3 seconds to connect.
+  // If it doesn't (production — no local server running),
+  // switch to in-browser generation automatically.
+  setTimeout(() => {
+    if (status.value !== 'connected') {
+      startDataGenerator()
+    }
+  }, 3000)
+})
+
+onUnmounted(() => {
+  wsService.disconnect()
+  stopDataGenerator()
+})
 </script>
 
 <template>

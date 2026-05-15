@@ -119,6 +119,26 @@ class WebSocketService {
       this.connect()
     }, delay)
   }
+
+  // Call handlers directly — used by the in-browser generator
+  dispatchEvent(event: StreamEvent) {
+    const validated = validateEvent(event)
+    if (validated) {
+      this.eventHandlers.forEach((h) => h(validated))
+    }
+  }
+
+  // Tell the service to act as connected without a real socket
+  forceConnected() {
+    this.shouldReconnect = false
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+    this.socket?.close()
+    this.socket = null
+    this.setStatus('connected')
+  }
 }
 
 // Singleton — one instance shared across the whole app
